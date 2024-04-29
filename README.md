@@ -8,7 +8,7 @@ This repository is the official implementation of [Recognizing Handwritten Mathe
 
 ## Requirements
 - This codebase is written for `python3`.
-- To install necessary python packages, run `pip install -r requirements.txt`.
+- To install necessary python packages, run `poetry install`.
 
 ## The Dataset:
 The dataset used in the paper is available in this repository. The images folder
