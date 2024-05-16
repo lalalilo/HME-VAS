@@ -8,8 +8,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 ultralytics = "^8.2.5"
-opencv-python = "^4.9.0.80"
 notebook = "^7.1.3"
+sympy = "^1.12"
+streamlit-drawable-canvas = "^0.9.3"
+streamlit = "^1.33.0"
+ruff = "^0.4.4"
+opencv-python = "^4.9.0.80"
 
 
 [build-system]
