@@ -1,38 +1,64 @@
 import cv2
-from matplotlib import pyplot as plt
 import streamlit as st
-import numpy as np
-import time
-from PIL import Image
-from streamlit_drawable_canvas import st_canvas
 import sympy
 from transcriptor import Transcriptor
 from utils import get_bounding_boxes_yolov8, clean_latex_expression
 
-title = "Reconnaissance de calculs posés à la vertical à l'aide d'OCR et d'IA"
 
-st.set_page_config(layout="wide", page_title=title, page_icon="🤖", )
+
+title = "Reconnaissance de calculs posés à la verticale à l'aide d'OCR et d'IA"
+
+st.set_page_config(page_title=title, page_icon="🤖", layout='wide')
+
+with st.sidebar:
+    st.image(
+        "ressources/lilo.png",
+        use_column_width="auto",
+    )
+
+    st.title("À propos")
+
+    with st.container(border=True):
+        st.markdown(
+            """
+            Cette application permet de reconnaître des calculs posés à la verticale à l'aide d'OCR et d'IA.
+            Elle est basée sur un modèle YOLOv5 pré-entraîné, entrainé spécifiquement sur un jeu de données de calculs posés à la verticale par des élèves.
+            Le jeu de données contient des calculs corrects et des calculs erronés.""")
+    with st.container(border=True):
+        st.markdown("""
+            Le modèle de *computer vision* est capable de détecter les particularités de la pose verticale d'élèves : 
+            alignement des chiffres et structure du calcul, utilisation du signe égal, utilisation ou non de retenues, etc.""")
+    with st.container(border=True):
+        st.markdown("""
+            Sur cette démonstration, le modèle évalue en direct des calculs posés à la verticale et donne ensuite une évaluation du résultat.
+            Quelques images sont données en exemple pour tester le modèle.
+            """
+    )
+
 
 st.title(title)
-st.header("1. Choisissons une image contenant une opération au hasard")
 
+st.image(image="ressources/lalilo.png", use_column_width="always")
+c1, c2 = st.columns(2)
+c1.markdown("### 1. Choix d'une image contenant une opération")
 
-if st.button("Clique-ici 👀", ):
-    random_number = np.random.randint(1, 305)
-    image_path = f"dataset/images/{random_number}.png"
-    st.header("2. Regardons l'image sélectionnée")
-    picture = st.image(image_path)
+demo_img_ref = [3,18,12,190,73, 50, 140, 171,]
 
-    st.header("3. Affichons le résultat de la reconnaissance de l'opération et vérifions si elle est correcte 🤞")
+# Initialize current_image if it doesn't exist
+if "current_image" not in st.session_state:
+    st.session_state.current_image = 0
 
+if st.button("Cliquer ici pour charger une image", type="primary" ):
+    image_path = f"dataset/images/{demo_img_ref[st.session_state.current_image]}.png"
+    picture = c1.image(image_path, width=400)
+     # Increment current_image and wrap around if it exceeds the list length
+    st.session_state.current_image = (st.session_state.current_image + 1) % len(demo_img_ref)
+
+    c2.markdown("### 2. Résultat de la reconnaissance de l'opération ")
 
     try:
-
         with st.spinner("Traitement en cours..."):
-            time.sleep(1)
-
             transcriptor = Transcriptor()
-
             bounding_boxes = get_bounding_boxes_yolov8(image_path)
 
             # Load the image
@@ -47,60 +73,22 @@ if st.button("Clique-ici 👀", ):
                 cv2.putText(picture, f"{label} ({conf:.2f})", top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
 
             # Plot the image
-            st.image(picture)
+            c2.image(picture, width=400, channels="RGB")
 
             latex = transcriptor(bounding_boxes)
             latex = clean_latex_expression(latex)
-            st.markdown("### Le calcul extrait de l'image est : ")
-            with st.container(border=True):
+            
+            st.markdown("### 3. Évaluation de l'opération")
+            c3, c4 = st.columns(2)
+
+            with c3.container(border=True):
+                st.markdown("Le calcul extrait de l'image est : ")
                 st.latex(latex.replace("==", "="))
             sympy.init_printing()
             sympy_expr = sympy.sympify(latex)
             if sympy_expr: 
-                st.success("Ce qui est... correct !")
+                c4.success("Le résultat de l'opération est correct", icon="✅")
             else: 
-                st.error('Ce qui est... incorrect !')
+                c4.error("Le résultat de l'opération est incorrect", icon="❌")
     except Exception:
-        st.warning("Oups, nous avons rencontré une erreur 😰 Nous sommes encore en beta ! Essayez avec une autre image 🤞")
-
-
-
-
-
-# # Specify canvas parameters in application
-# drawing_mode = "freedraw"
-# stroke_width = 3
-# realtime_update = True
-
-# # Create a canvas component
-# canvas_result = st_canvas(
-#     stroke_width=stroke_width,
-#     stroke_color="#F31313",
-#     update_streamlit=realtime_update,
-#     drawing_mode=drawing_mode,
-#     key="canvas",
-# )
-
-# # Do something interesting with the image data and paths
-# if st.button("process"):
-#     # Open the image file
-
-#     img_data = canvas_result.image_data
-#     if canvas_result.image_data is not None:
-#         negative_img_data = 255 - canvas_result.image_data
-#         negative_img = Image.fromarray(negative_img_data.astype(np.uint8)).convert(
-#             "RGB"
-#         )
-#         negative_img.save("img.jpg", "JPEG")
-#     else:
-#         st.write("no image to save")
-
-#     transcriptor = Transcriptor()
-
-#     bounding_boxes = get_bounding_boxes_yolov8("img.jpg")
-#     print(bounding_boxes)
-
-#     latex = transcriptor(bounding_boxes)
-#     st.markdown(latex)
-
-#     evaluate_expression(latex)
+        c4.warning("Oups, nous avons rencontré une erreur 😰 Nous sommes encore en beta ! Essayez avec une autre image 🤞")
