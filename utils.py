@@ -1,10 +1,10 @@
 from ultralytics import YOLO
-import streamlit as st
 
-import sympy
 
 
 import re
+
+MDP = "LaliloP2IA2024"
 
 def remove_overset(latex_str):
     # Define regex pattern to match overset commands
