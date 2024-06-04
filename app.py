@@ -45,7 +45,7 @@ def main():
 
         # Load the initial image
         image_path = f"dataset/images/{demo_img_ref[st.session_state.current_image]}.png"
-        picture = st.image(image_path, width=500)
+        picture = st.image(image_path, use_column_width='auto')
 
         with c2.container(border=True):
             st.markdown("### Reconnaissance de l'opération ")
@@ -75,7 +75,7 @@ def main():
                     cv2.putText(picture, f"{label} ({conf:.2f})", top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
 
                 # Plot the image
-                st.image(picture, width=500, channels="RGB", )
+                st.image(picture, use_column_width='auto', channels="RGB", )
 
                 latex = transcriptor(bounding_boxes)
                 latex = clean_latex_expression(latex)
