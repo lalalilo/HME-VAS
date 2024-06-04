@@ -33,30 +33,24 @@ def main():
                 """
         )
 
+    st.image(image="ressources/BannerDemoMaths.svg", use_column_width="always")
+    c1, c2, c3 = st.columns(3, gap="small")
+    with c1.container(border=True):
+        st.markdown("### Affichage de l'image")
 
-    st.title(title)
+        demo_img_ref = [3,18,12,190,73, 50, 140, 171,]
 
-    st.image(image="ressources/lalilo.png", use_column_width="always")
-    c1, c2 = st.columns(2)
-    c1.markdown("### 1. Choix d'une image contenant une opération")
+        if "current_image" not in st.session_state:
+            st.session_state.current_image = 0
 
-    demo_img_ref = [3,18,12,190,73, 50, 140, 171,]
-
-    # Initialize current_image if it doesn't exist
-    if "current_image" not in st.session_state:
-        st.session_state.current_image = 0
-
-    if st.button("Cliquer ici pour charger une image", type="primary" ):
+        # Load the initial image
         image_path = f"dataset/images/{demo_img_ref[st.session_state.current_image]}.png"
-        picture = c1.image(image_path, width=400)
-        # Increment current_image and wrap around if it exceeds the list length
-        st.session_state.current_image = (st.session_state.current_image + 1) % len(demo_img_ref)
+        picture = st.image(image_path, width=500)
 
-        c2.markdown("### 2. Résultat de la reconnaissance de l'opération ")
-
-        try:
-            with st.spinner("Traitement en cours..."):
-                transcriptor = Transcriptor()
+        with c2.container(border=True):
+            st.markdown("### Reconnaissance de l'opération ")
+            transcriptor = Transcriptor()
+            if image_path:
                 bounding_boxes = get_bounding_boxes_yolov8(image_path)
 
                 # Load the image
@@ -70,26 +64,39 @@ def main():
                     cv2.rectangle(picture, top_left, bottom_right, (255, 0, 0), 2)
                     cv2.putText(picture, f"{label} ({conf:.2f})", top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
 
+                # Load the image
+                picture = cv2.imread(image_path)
+                # Draw the bounding boxes on the image
+                for box in bounding_boxes:
+                    top_left, bottom_right = box[0]
+                    label = box[1]
+                    conf = box[2]
+                    cv2.rectangle(picture, top_left, bottom_right, (255, 0, 0), 2)
+                    cv2.putText(picture, f"{label} ({conf:.2f})", top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
+
                 # Plot the image
-                c2.image(picture, width=400, channels="RGB")
+                st.image(picture, width=500, channels="RGB", )
 
                 latex = transcriptor(bounding_boxes)
                 latex = clean_latex_expression(latex)
-                
-                st.markdown("### 3. Évaluation de l'opération")
-                c3, c4 = st.columns(2)
+        with c3.container(border=True):
+            st.markdown("### Évaluation de l'opération")
+            st.markdown("Le calcul extrait de l'image est : ")
+            st.latex(latex.replace("==", "="))
+            sympy.init_printing()
+            sympy_expr = sympy.sympify(latex)
+            if sympy_expr: 
+                st.success("Le résultat de l'opération est correct ✅")
+            else: 
+                st.error("Le résultat de l'opération est incorrect")
+        with c3.container(border=True):
+            st.markdown("#### Essayer avec une autre image")
+            if st.button("Charger une autre image", type="primary"):
+                # Increment current_image and wrap around if it exceeds the list length
+                st.session_state.current_image = (st.session_state.current_image + 1) % len(demo_img_ref)
 
-                with c3.container(border=True):
-                    st.markdown("Le calcul extrait de l'image est : ")
-                    st.latex(latex.replace("==", "="))
-                sympy.init_printing()
-                sympy_expr = sympy.sympify(latex)
-                if sympy_expr: 
-                    c4.success("Le résultat de l'opération est correct", icon="✅")
-                else: 
-                    c4.error("Le résultat de l'opération est incorrect", icon="❌")
-        except Exception:
-            c4.warning("Oups, nous avons rencontré une erreur 😰 Nous sommes encore en beta ! Essayez avec une autre image 🤞")
+                # Load the new image
+                image_path = f"dataset/images/{demo_img_ref[st.session_state.current_image]}.png"
 
 
 def login():
@@ -99,7 +106,7 @@ def login():
     if st.button("Se connecter"):
         if password == MDP:
             st.session_state['authenticated'] = True
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Mot de passe incorrect")
 
