@@ -19,12 +19,12 @@ def main():
         with st.container(border=True):
             st.markdown(
                 """
-                Cette application permet de reconnaître des calculs posés à la verticale à l'aide d'OCR et d'IA.
-                Elle est basée sur un modèle YOLOv5 pré-entraîné, entrainé spécifiquement sur un jeu de données de calculs posés à la verticale par des élèves.
+                Cette application permet de reconnaître des calculs posés à la verticale d’additions et de soustractions à l'aide d'OCR et d'IA.
+                Elle est basée sur un modèle YOLOv5, entrainé spécifiquement sur un jeu de données de calculs posés à la verticale par des élèves.
                 Le jeu de données contient des calculs corrects et des calculs erronés.""")
         with st.container(border=True):
             st.markdown("""
-                Le modèle de *computer vision* est capable de détecter les particularités de la pose verticale d'élèves : 
+                Le modèle de *vision par ordinateur* est capable de détecter les particularités de la pose verticale de calculs : 
                 alignement des chiffres et structure du calcul, utilisation du signe égal, utilisation ou non de retenues, etc.""")
         with st.container(border=True):
             st.markdown("""
