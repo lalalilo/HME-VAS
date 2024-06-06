@@ -72,8 +72,8 @@ def main():
                         picture,
                         f"{label}",
                         top_left,
-                        cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
-                        1.25,
+                        cv2.FONT_HERSHEY_PLAIN,
+                        2,
                         (255, 0, 0),
                         1,
                     )
@@ -96,7 +96,7 @@ def main():
             if sympy_expr:
                 st.success("**Le résultat de l'opération est correct** ✅")
             else:
-                st.error("**Le résultat de l'opération est incorrect** ❌")
+                st.error(f"**Le résultat de l'opération est incorrect. La bonne réponse est {sympy.sympify(latex.split('=')[0])}.**")
         with c3.container(border=True):
             st.markdown("##### Essayer avec une autre image")
             if st.button("Charger une autre image", type="primary"):
@@ -113,7 +113,7 @@ def main():
 
 def login():
     st.title("Connexion")
-    password = st.text_input("Mot de passe", type="password")
+    password = st.text_input("Mot de passe", type="password", placeholder="Entrer le mot de passe", label_visibility="collapsed")
 
     if st.button("Se connecter"):
         if password == MDP:

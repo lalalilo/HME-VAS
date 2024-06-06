@@ -49,7 +49,7 @@ def get_bounding_boxes_yolov8(img_path):
         elif label == "12":
             label = "="
         elif label == "13":
-            label = "c1"
+            label = "r1"
         # Filter low-confidence detections:
         if conf > conf_thr:
             bounding_boxes.append(([top_left, bottom_right], label, conf))
